@@ -31,6 +31,7 @@ v6(current): Resolved issue for linux 64bit boundary
  uint32_t input=2;
  uint32_t bytes=0,max_bytes=MAX,a_flag=0,mem_alloc_check=0,clear_mem=0,mem_free_count=0;
  uint32_t j=0;
+ uint32_t mem_free=0;
  uint32_t donot_free=0;
  uint32_t* allocated_mem=0;
  uint32_t* array[MAX]={0};
@@ -113,7 +114,7 @@ v6(current): Resolved issue for linux 64bit boundary
  }
  void free_mem(uint32_t* allocated_mem)
  {
-     uint64_t mem_free=0,i=0;
+     uint32_t i=0;
      //version v5
  
 
@@ -129,7 +130,8 @@ v6(current): Resolved issue for linux 64bit boundary
                  { 
                     //printf("Content in array[i] %p\n",array[i]);
                     //printf("Content in mem_free %x\n",mem_free);
-                    uint32_t temp = array[i];
+                    // delete this
+                    uint32_t temp = (uint32_t)array[i];
                     
                     if(temp == mem_free) 
                         {   for(j=0; j<=mem_free_count; j++)    //very important '<='
