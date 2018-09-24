@@ -1,20 +1,19 @@
 /******************************************************************************
-Project Partners: 1.Lekshmi Prathap
-                  2.Yash Gupte
-Current version created on: 09-23-2018
-Version Specifications:
--------------------------------------------------------------------------------
+
+Welcome to GDB Online.
+GDB online is an online compiler and debugger tool for C, C++, Python, PHP, Ruby, 
+C#, VB, Perl, Swift, Prolog, Javascript, Pascal, HTML, CSS, JS
+Code, Compile, Run and Debug online from anywhere in world.
+
 This version takes the input as "allocate" and "freemem"
 This version takes hexadecimal input from user to clear bytes
 v4: This version makes the code 32bit-unsigned aligned.
--------------------------------------------------------------------------------
+*******************************************************************************
 v5:This version takes address from user to free space.
 Blocks double freeing.
--------------------------------------------------------------------------------
-v6: Resolved issue for linux 64bit boundary
+*******************************************************************************
+v6(current): Resolved issue for linux 64bit boundary
     created a make file with run commands.
--------------------------------------------------------------------------------
-v7(current): Removed goto and inserted a function call instead.
 *******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
@@ -28,7 +27,6 @@ v7(current): Removed goto and inserted a function call instead.
  uint32_t* allocate(short int ,short int);
  void free_mem(uint32_t* allocated_mem);
  uint32_t user_input(void);
- void main_interface(void);
 
  uint32_t input=2;
  uint32_t bytes=0,max_bytes=MAX,a_flag=0,mem_alloc_check=0,clear_mem=0,mem_free_count=0;
@@ -39,53 +37,50 @@ v7(current): Removed goto and inserted a function call instead.
  uint32_t* array[MAX]={0};
  uint32_t* free_mem_check[MAX];
  uint32_t  already_freed[MAX];
- uint32_t array_mem_check[MAX];
- 
  
  char str[BUFF];
  char alloc[BUFF];
  char freemem[BUFF];
 
- 
+ uint32_t array_mem_check[MAX];
  uint32_t array_count=0;
-
  int main()
  {
      menu();
+     // Call a function for this.
+     strcpy(alloc,"allocate\n");
+     strcpy(freemem,"freemem\n");
      while(1)
      {
+      here:
       input = user_input();
-      main_interface();
-     }
-        return 0;
-    }
- 
-    
- void main_interface()
- {
-      
       if(input==0){
             printf("Enter the number of bytes:\t");
             scanf("%d",&bytes);
+            //Addition v5:
+            //max_bytes=max_bytes-bytes;
             if(bytes>20 || bytes<1) {
                 printf("Press 'allocate' to allocate memory and enter a number below 20\n");
-                return;
+                goto here;
             }
             allocated_mem = allocate(bytes,max_bytes);
             }
      
       else {
-                input=strcmp(str,freemem);
-                if(input == 0) free_mem(allocated_mem);
-            }
+         input=strcmp(str,freemem);
+         if(input == 0) free_mem(allocated_mem);
+     }
+      
+   }
+   return 0;
  }
+    
+ 
 
  void menu()
  {  puts("Welcome! This is the main menu:\n");
     printf("Type in 'allocate' followed by number of bytes(<20) to allocate x bytes of memory\n");
     printf("Type in 'freemem' followed by index number to deallocate allocated bytes of memory\n");
-    strcpy(alloc,"allocate\n");
-    strcpy(freemem,"freemem\n");
     
  }
 
@@ -105,6 +100,8 @@ v7(current): Removed goto and inserted a function call instead.
      }
      
      a_flag=1;
+     //printf("array_count %d:\n",array_count);
+     //printf("Successfully allocated memory\n");
      printf("Successfully allocated memory at %p\n",array[array_count]);
      array_count+=1;
      mem_alloc_check+=1;
@@ -119,6 +116,8 @@ v7(current): Removed goto and inserted a function call instead.
  {
      uint32_t i=0;
      //version v5
+ 
+
      if(a_flag==0) 
      {
          printf("Allocate memory first!\n");
@@ -128,7 +127,10 @@ v7(current): Removed goto and inserted a function call instead.
             scanf("%x",&mem_free);
             //temp[0]=mem_free;
                  for(i=0; i<=array_count ; i++)
-                 {  printf("%ld\n",sizeof(array[i]));
+                 { 
+                    //printf("Content in array[i] %p\n",array[i]);
+                    //printf("Content in mem_free %x\n",mem_free);
+                    // delete this
                     uint32_t temp = (uint32_t)array[i];
                     
                     if(temp == mem_free) 
@@ -163,15 +165,23 @@ v7(current): Removed goto and inserted a function call instead.
                         }
                 }
                 if(clear_mem == 0) printf("Enter a valid address or allocate memory first\n");
+            //free(array[mem_free]);
+            
             array[array_count]=NULL;
+            //a_flag=0;
             mem_alloc_check=0;
-
+            
+            
+            //printf("Contents at freed memory at %d\n",array[mem_free]);
+            //array_count-=1;
 }
 
 uint32_t user_input()
 {   uint32_t input=2;
     fgets(str,BUFF,stdin);
+    //printf("%s\n",str);
     input=strcmp(str,alloc);
+    //printf("%d\n",input); //remove later
     return input;
 }
     
