@@ -20,13 +20,8 @@ v8: 1.Added the exit function.
              2.Added function to store data in a 
              memory location which has been allocated.
 -------------------------------------------------------------------------------
-v9: 1. Resolved the allocate->free->allocate-> issue
+v9(current): 1. Resolved the allocate->free->allocate-> issue
              2. Removed the already_freed[] for the above issue.
--------------------------------------------------------------------------------
-v10: 1. Array shift for resizing the array[]
-              2. Display data.
--------------------------------------------------------------------------------
-v11(current): 1. free_all function
 *******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>
@@ -42,22 +37,17 @@ v11(current): 1. free_all function
  void user_input(void);
  void main_interface(void);
  void add_data(void);
- void resizing_freed_array(void);
- void _display(void);
- void freeAll(void);
 
 
  uint32_t input=2;
  uint32_t bytes=0,max_bytes=MAX,a_flag=0,mem_alloc_check=0,clear_mem=0,mem_free_count=0;
  uint32_t j=0,i=0;
- uint32_t free_all_input=0;
  uint32_t mem_free=0;
  uint32_t donot_free=0;
  uint32_t data_to_store = 0;
  uint32_t mem_to_store = 0;
  uint32_t temp=0;
  uint32_t* allocated_mem=0;
- uint32_t location_to_free=0;
  uint32_t invalid_mem=1;
  uint32_t* pointer_to_already_freed=NULL;
  uint32_t* array[MAX]={0};
@@ -72,9 +62,6 @@ v11(current): 1. free_all function
  char help[BUFF];
  char quit[BUFF];
  char addData[BUFF];
- char display[BUFF];
- char free_all[BUFF];
- char yess[BUFF];
  
 
  
@@ -101,8 +88,6 @@ v11(current): 1. free_all function
       else if(strcmp(str,help) == 0) menu();
       else if(strcmp(str,quit) == 0) exit(0);
       else if(strcmp(str,addData) == 0) add_data();
-      else if(strcmp(str,display) == 0) _display();
-      else if(strcmp(str,free_all) == 0) freeAll();
         
  }
 
@@ -113,15 +98,12 @@ v11(current): 1. free_all function
     printf("Type in 'help' for the list of functions\n");
     printf("Type in 'exit' to exit the program\n");
     printf("Type in 'add_data' to add data in the program\n");
-    printf("Type in 'display' to display data in the program\n");
-    printf("Type in 'free_all' to free all data in the program\n");
     strcpy(alloc,"allocate\n");
     strcpy(freemem,"freemem\n");
     strcpy(help,"help\n");
     strcpy(quit,"exit\n");
     strcpy(addData,"add_data\n");
-    strcpy(display,"display\n");
-    strcpy(free_all,"free_all\n");
+    
  }
 
  uint32_t* allocate()
@@ -177,13 +159,12 @@ v11(current): 1. free_all function
                     if(temp == mem_free) 
                             {   
                                 invalid_mem=0;
+            
                                 printf("Valid Address\n");
                                 free(array[i]);
                                 printf("Successfully freed memory at %p\n",array[i]);
                                 array[i]=NULL;
-                                mem_free_count+=1; 
-                                location_to_free=i;  
-                                resizing_freed_array(); 
+                                mem_free_count+=1;    
                                 
                             }
 
@@ -226,41 +207,4 @@ void add_data()
         }
     }
     if (data_to_store ==0) printf("Invalid Data\n");
-}
-
-void resizing_freed_array()
-{
-    for(i=location_to_free+1; i<array_count; i+=1)
-    {
-        array[i-1]=array[i];
-    }
-    array[array_count-1]=NULL;
-    array_count-=1;
-}
-
-void _display()
-{
-    for(i=0;i<array_count;i+=1) printf("Address: %p Content: %d\n",array[i],*array[i]);
-}
-
-void freeAll()
-{ 
-    if(array_count==0) 
-    {
-        printf("Allocate Memory First.\n");
-        return;
-    }
-    printf("This will erase all allocated memory.\n Use 'freemem' to free memory by address.\n Continue?: '1' or enter any other character to return to menu.\n");
-    scanf("%d",&free_all_input);
-    if(free_all_input==1)
-    {
-        for(i=0; i<array_count; i+=1) 
-        {   
-            free(array[i]);
-            array[i]=NULL;
-        }
-        array_count=0;
-        printf("Successfully freed memory\n");
-    }
-    
 }
