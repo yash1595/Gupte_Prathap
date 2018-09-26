@@ -3,11 +3,10 @@ objects = project1_latest.o
 edit	:	$(objects)
 project1_latest.o : project1_latest.c	
 					cc -c project1_latest.c
-		    gcc project1_latest.c -o $(objects) -w
-		
+		    gcc project1_latest.c -w	
 																
-		#gcc -Wl,--oformat=a.out-i386-linux project1_latest.c -o proj.out
-		sudo ./$(objects)
+a.out		:	$(objects)
+		
 
 clean:
 		rm edit $(objects)

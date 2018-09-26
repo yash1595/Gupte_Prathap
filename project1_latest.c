@@ -36,35 +36,37 @@ v11(current): 1. free_all function
 #define BUFF 15 
 #define MAX  20
 
- void menu();
- uint32_t* allocate();
- void free_mem(uint32_t* allocated_mem);
- void user_input(void);
- void main_interface(void);
- void add_data(void);
- void resizing_freed_array(void);
- void _display(void);
- void freeAll(void);
+/* Functions */
+ void menu();                               // Displays the help menu and assigns string variables.
+ uint32_t* allocate();                      // Allocates memory based on number of bytes entered by the user.
+ void free_mem(uint32_t* allocated_mem);    // Frees memory by taking the address to be freed from the user.
+ void user_input(void);                     // Takes the user input and stored it in a string
+ void main_interface(void);                 // Calls functions based on what the user enters.
+ void add_data(void);                       // Adds the data in the memory allocated.
+ void resizing_freed_array(void);           // Resizes the array so as to not exhaust the array space.
+ void _display(void);                       // Displays the data and corresponding location at which it is stored.
+ void freeAll(void);                        // This function frees all the allocated memories at a go.
 
-
+/* Variables */
  uint32_t input=2;
- uint32_t bytes=0,max_bytes=MAX,a_flag=0,mem_alloc_check=0,clear_mem=0,mem_free_count=0;
+ uint32_t bytes=0;
+ uint32_t max_bytes=MAX;
+ uint32_t a_flag=0;
+ uint32_t mem_alloc_check=0;
+ uint32_t mem_free_count=0;
  uint32_t j=0,i=0;
  uint32_t free_all_input=0;
  uint32_t mem_free=0;
  uint32_t donot_free=0;
  uint32_t data_to_store = 0;
  uint32_t mem_to_store = 0;
- long temp=0;
  uint32_t* allocated_mem=0;
  uint32_t location_to_free=0;
  uint32_t invalid_mem=1;
- uint32_t* pointer_to_already_freed=NULL;
+ uint32_t array_count=0;
+ uint32_t temp=0;
+
  uint32_t* array[MAX]={0};
- uint32_t* free_mem_check[MAX];
- uint32_t  already_freed[MAX];
- uint32_t array_mem_check[MAX];
- 
  
  char str[BUFF];
  char alloc[BUFF];
@@ -74,11 +76,8 @@ v11(current): 1. free_all function
  char addData[BUFF];
  char display[BUFF];
  char free_all[BUFF];
- char yess[BUFF];
  
-
- 
- uint32_t array_count=0;
+ /* Main Function */
 
  int main()
  {
@@ -88,24 +87,9 @@ v11(current): 1. free_all function
       user_input();
       main_interface();
      }
-        //exit_func();
         return 0;
 }
  
-    
- void main_interface()
- {
-      
-      if(strcmp(str,alloc) == 0) allocated_mem = allocate();
-      else if(strcmp(str,freemem) == 0) free_mem(allocated_mem);
-      else if(strcmp(str,help) == 0) menu();
-      else if(strcmp(str,quit) == 0) exit(0);
-      else if(strcmp(str,addData) == 0) add_data();
-      else if(strcmp(str,display) == 0) _display();
-      else if(strcmp(str,free_all) == 0) freeAll();
-        
- }
-
  void menu()
  {  puts("Welcome! This is the main menu:\n");
     printf("Type in 'allocate' followed by number of bytes(<20) to allocate x bytes of memory\n");
@@ -124,6 +108,20 @@ v11(current): 1. free_all function
     strcpy(free_all,"free_all\n");
  }
 
+ void main_interface()
+ {
+      
+      if(strcmp(str,alloc) == 0) allocated_mem = allocate();
+      else if(strcmp(str,freemem) == 0) free_mem(allocated_mem);
+      else if(strcmp(str,help) == 0) menu();
+      else if(strcmp(str,quit) == 0) exit(0);
+      else if(strcmp(str,addData) == 0) add_data();
+      else if(strcmp(str,display) == 0) _display();
+      else if(strcmp(str,free_all) == 0) freeAll();
+        
+ }
+
+ 
  uint32_t* allocate()
  {   
      printf("Enter the number of bytes:\t");
@@ -172,7 +170,8 @@ v11(current): 1. free_all function
             scanf("%x",&mem_free);
                  for(i=0; i<=array_count ; i++)
                  {
-                    temp = (long)array[i];
+                    temp = (uint32_t)array[i];
+
                     //Version9:
                     if(temp == mem_free) 
                             {   
@@ -189,7 +188,6 @@ v11(current): 1. free_all function
 
                     }
 
-                
 
                 if(invalid_mem == 1) printf("Enter a valid address or allocate memory first\n");
                   
@@ -213,10 +211,10 @@ void add_data()
     }
     printf("Enter address to store the data\n");
     scanf("%x",&mem_to_store);
-    printf("Address entered: %x\n",mem_to_store);
+    //printf("Address entered: %x\n",mem_to_store);
     
     for(i=0 ; i<array_count ; i+=1)
-    {   temp = (long)array[i];
+    {   temp = (uint32_t)array[i];
         if(temp == mem_to_store)
         {
             printf("Valid address, enter data\n");
@@ -239,7 +237,7 @@ void resizing_freed_array()
 }
 
 void _display()
-{
+{   if(array_count == 0)printf("No memory to free\n");
     for(i=0;i<array_count;i+=1) printf("Address: %p Content: %d\n",array[i],*array[i]);
 }
 
@@ -250,7 +248,9 @@ void freeAll()
         printf("Allocate Memory First.\n");
         return;
     }
-    printf("This will erase all allocated memory.\n Use 'freemem' to free memory by address.\n Continue?: '1' or enter any other character to return to menu.\n");
+    printf("This will erase all allocated memory.\n");
+    printf("Use 'freemem' to free memory by address.\n");
+    printf("To Continue type '1'\n");
     scanf("%d",&free_all_input);
     if(free_all_input==1)
     {
