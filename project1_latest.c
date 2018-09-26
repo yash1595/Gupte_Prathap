@@ -56,15 +56,17 @@ v11(current): 1. free_all function
  uint32_t mem_free_count=0;
  uint32_t j=0,i=0;
  uint32_t free_all_input=0;
- uint32_t mem_free=0;
+ //uint32_t mem_free=0;
  uint32_t donot_free=0;
  uint32_t data_to_store = 0;
- uint32_t mem_to_store = 0;
+ //uint32_t mem_to_store = 0;
  uint32_t* allocated_mem=0;
  uint32_t location_to_free=0;
  uint32_t invalid_mem=1;
  uint32_t array_count=0;
- uint32_t temp=0;
+ long temp=0;
+ long mem_free=0;
+ long mem_to_store=0;
 
  uint32_t* array[MAX]={0};
  
@@ -167,10 +169,10 @@ v11(current): 1. free_all function
          return;
      }
         printf("Enter location to free\n");
-            scanf("%x",&mem_free);
+            scanf("%lx",&mem_free);
                  for(i=0; i<=array_count ; i++)
                  {
-                    temp = (uint32_t)array[i];
+                    temp = (long)array[i];
 
                     //Version9:
                     if(temp == mem_free) 
@@ -210,11 +212,11 @@ void add_data()
         return;
     }
     printf("Enter address to store the data\n");
-    scanf("%x",&mem_to_store);
+    scanf("%lx",&mem_to_store);
     //printf("Address entered: %x\n",mem_to_store);
     
     for(i=0 ; i<array_count ; i+=1)
-    {   temp = (uint32_t)array[i];
+    {   temp = (long)array[i];
         if(temp == mem_to_store)
         {
             printf("Valid address, enter data\n");
