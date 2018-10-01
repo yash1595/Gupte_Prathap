@@ -46,8 +46,8 @@ v12(current): 1. invert logic
 struct timeval start_t,end_t;
 
 /* Functions */
- void menu(void);                               // Displays the help menu and assigns string variables.
- uint32_t* allocate(void);                      // Allocates memory based on number of bytes entered by the user.
+ void menu();                               // Displays the help menu and assigns string variables.
+ uint32_t* allocate();                      // Allocates memory based on number of bytes entered by the user.
  void free_mem(uint32_t* allocated_mem);    // Frees memory by taking the address to be freed from the user.
  void user_input(void);                     // Takes the user input and stored it in a string
  void main_interface(void);                 // Calls functions based on what the user enters.
@@ -57,10 +57,6 @@ struct timeval start_t,end_t;
  void freeAll(void);                        // This function frees all the allocated memories at a go.
  void defaultMessage(void);
  void invert_data(void);
-/* Function pointers*/
- void (*f_menu)(void);
- 
-
 /* Variables */
  uint32_t input=2;
  uint32_t bytes=0;
@@ -73,7 +69,6 @@ struct timeval start_t,end_t;
  uint32_t donot_free=0;
  uint32_t data_to_store = 0;
  uint32_t* allocated_mem=0;
- long ** mem_store=NULL;
  uint32_t location_to_free=0;
  uint32_t invalid_mem=1;
  uint32_t array_count=0;
@@ -86,7 +81,7 @@ struct timeval start_t,end_t;
  long mem_free=0;
  long mem_to_store=0;
  long store=0;
- 
+ long* mem_store=NULL;
 
  uint32_t elapsed = 0;
 
@@ -106,7 +101,8 @@ struct timeval start_t,end_t;
  /* Main Function */
 
  int main()
- {  menu();
+ {
+     menu();
      while(1)
      {
       user_input();
@@ -124,7 +120,6 @@ struct timeval start_t,end_t;
     printf("Type in 'add_data' to add data in the program\n");
     printf("Type in 'display' to display data in the program\n");
     printf("Type in 'free_all' to free all data in the program\n");
-    printf("Type in 'invert_data' to add address to invert data in the program\n");
     strcpy(alloc,"allocate\n");
     strcpy(freemem,"freemem\n");
     strcpy(help,"help\n");
@@ -239,20 +234,20 @@ void add_data()
         return;
     }
     printf("Enter address to store the data\n");
-    scanf("%lx",mem_store);
+    scanf("%lx",&mem_to_store);
     //temp
     //long* p=mem_to_store;
-    //mem_store=&mem_to_store;
+    mem_store=mem_to_store;
     for(i=0 ; i<array_count ; i+=1)        
     {   store=(long)array[i];
-        if(*mem_store >= store && *mem_store <= (store + pointer_to_array[i]*sizeof(uint32_t)))
+        if(mem_to_store >= store && mem_to_store <= (store + pointer_to_array[i]*sizeof(uint32_t)))
         {
-            if(((long)*mem_store-store)%(sizeof(uint32_t)) == 0)
+            if((mem_to_store-store)%(sizeof(uint32_t)) == 0)
             {
                 printf("Valid address, enter data\n");
                 scanf("%x",&data_to_store);
-                **mem_store=data_to_store;
-                printf("Data: %04x stored at Address %04x\n",**mem_store,*mem_store);
+                *mem_store=data_to_store;
+                printf("Data: %04x stored at Address %04lx\n",data_to_store,mem_to_store);
                 //validMemInAddData=1;
                 return;
             }
@@ -330,18 +325,15 @@ void invert_data(void)
     scanf("%d",&num_of_loc);
     gettimeofday(&start_t,NULL);
     printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
-    
-    mem_store = &mem_to_invert;
-    
-    //mem_store=mem_to_invert;
+    mem_store=&mem_to_invert;
     for(i=0 ; i<array_count ; i+=1)        
     {   store=(long)array[i];
-        if(*mem_store >= store && ((*mem_store + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
+        if(mem_to_invert >= store && ((mem_to_invert + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
         {
-            if(((long)*mem_store-store)%(sizeof(uint32_t)) == 0)
+            if((mem_to_invert-store)%(sizeof(uint32_t)) == 0)
             {
-                **mem_store^=xor;//check
-                printf("Data: %04lx stored at Address %04lx\n",**mem_store,*mem_store);
+                *mem_store^=xor;//check
+                printf("Data: %04lx stored at Address %04lx\n",*mem_store,mem_to_invert);
                 gettimeofday(&end_t,NULL);
                 printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
                 elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
