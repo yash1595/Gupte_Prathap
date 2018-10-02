@@ -28,9 +28,11 @@ v10: 1. Array shift for resizing the array[]
 -------------------------------------------------------------------------------
 v11: 1. free_all function
 -------------------------------------------------------------------------------
-v12(current): 1. invert logic
+v12: 1. invert logic
               2. Default menu
               3. Valid address check in add_data.
+-------------------------------------------------------------------------------
+v13(current): 1. Access locations in between addresses.
 *******************************************************************************/
 #include <stdlib.h>
 #include <stdio.h>

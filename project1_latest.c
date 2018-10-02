@@ -28,36 +28,21 @@ v10: 1. Array shift for resizing the array[]
 -------------------------------------------------------------------------------
 v11: 1. free_all function
 -------------------------------------------------------------------------------
-v12(current): 1. invert logic
+v12: 1. invert logic
               2. Default menu
               3. Valid address check in add_data.
+-------------------------------------------------------------------------------
+v13:          1. Resolved pointer incompatibility
+              2. Resolved invert_data for all memory
+-------------------------------------------------------------------------------
+v14:          1. Exit with free_all
+              2. Header File included
+-------------------------------------------------------------------------------
+v15(current): 1. Random data
 *******************************************************************************/
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdint.h>
-#include <sys/time.h>
-
-#define BUFF 20 
-#define MAX  20
-/* structure*/
-
-
-struct timeval start_t,end_t;
-
-/* Functions */
- void menu();                               // Displays the help menu and assigns string variables.
- uint32_t* allocate();                      // Allocates memory based on number of bytes entered by the user.
- void free_mem(uint32_t* allocated_mem);    // Frees memory by taking the address to be freed from the user.
- void user_input(void);                     // Takes the user input and stored it in a string
- void main_interface(void);                 // Calls functions based on what the user enters.
- void add_data(void);                       // Adds the data in the memory allocated.
- void resizing_freed_array(void);           // Resizes the array so as to not exhaust the array space.
- void _display(void);                       // Displays the data and corresponding location at which it is stored.
- void freeAll(void);                        // This function frees all the allocated memories at a go.
- void defaultMessage(void);
- void invert_data(void);
-/* Variables */
+#include </home/ubuntu/Documents/Gupte_Prathap/project1_headers.h>
+ 
+ // Variables 
  uint32_t input=2;
  uint32_t bytes=0;
  uint32_t max_bytes=MAX;
@@ -75,18 +60,21 @@ struct timeval start_t,end_t;
  uint32_t validMemInAddData=0;
  uint32_t num_of_loc=0;
  uint32_t xor=0xFFFF;
+ uint32_t exit_free_flag=0;
  
  long temp=0;
  //long mem_to_invert=0;
  long mem_free=0;
  //long mem_to_store=0;
  long store=0;
- long* mem_store=NULL;
+ long add_aft_offset=0;
+ uint32_t* mem_store=NULL;
 
  uint32_t elapsed = 0;
 
  uint32_t* array[MAX]={0};
  uint32_t pointer_to_array[MAX]={0};
+ uint32_t* random_sequence[20]={0};
  
  char str[BUFF];
  char alloc[BUFF];
@@ -97,11 +85,17 @@ struct timeval start_t,end_t;
  char display[BUFF];
  char free_all[BUFF];
  char invertData[BUFF];
+ char pseudo[BUFF];
+ char verify_pattern[BUFF];
+ char offset[BUFF];
  
  /* Main Function */
 
+
  int main()
- {
+ {  //typedef void (*f_ptr) (void);
+     function_pointer_assignemnt();
+     //f_ptr f_add_data = add_data;
      menu();
      while(1)
      {
@@ -120,6 +114,9 @@ struct timeval start_t,end_t;
     printf("Type in 'add_data' to add data in the program\n");
     printf("Type in 'display' to display data in the program\n");
     printf("Type in 'free_all' to free all data in the program\n");
+    printf("Type in 'invert_data' to invert data in the program\n");
+    printf("Type in 'random' to generate a random sequence\n");
+    printf("Type in 'verify' to check a random sequence\n");
     strcpy(alloc,"allocate\n");
     strcpy(freemem,"freemem\n");
     strcpy(help,"help\n");
@@ -128,6 +125,9 @@ struct timeval start_t,end_t;
     strcpy(display,"display\n");
     strcpy(free_all,"free_all\n");
     strcpy(invertData,"invert_data\n");
+    strcpy(pseudo,"random\n");
+    strcpy(verify_pattern,"verify\n");
+    strcpy(offset,"offset\n");
  }
 
  void main_interface()
@@ -136,12 +136,15 @@ struct timeval start_t,end_t;
       if(strcmp(str,alloc) == 0) allocated_mem = allocate();
       else if(strcmp(str,freemem) == 0) free_mem(allocated_mem);
       else if(strcmp(str,help) == 0) menu();
-      else if(strcmp(str,quit) == 0) exit(0);
+      else if(strcmp(str,quit) == 0) exit_free();
       else if(strcmp(str,addData) == 0) add_data();
       else if(strcmp(str,display) == 0) _display();
       else if(strcmp(str,free_all) == 0) freeAll();
       else if(strcmp(str,invertData) == 0) invert_data();
-      else if(strcmp(str,"\n")!=0) defaultMessage();        
+      else if(strcmp(str,pseudo) == 0) _random();       
+      else if(strcmp(str,verify_pattern)==0) verify();    
+      else if(strcmp(str,offset)==0) offset_mem();
+      else if(strcmp(str,"\n")!=0) defaultMessage();
  }
 
  
@@ -236,9 +239,7 @@ void add_data()
     }
     printf("Enter address to store the data\n");
     scanf("%lx",&mem_to_store);
-    //temp
-    //long* p=mem_to_store;
-    mem_store=(long*)mem_to_store;
+    mem_store=(uint32_t*)mem_to_store;
     for(i=0 ; i<array_count ; i+=1)        
     {   store=(long)array[i];
         if(mem_to_store >= store && mem_to_store <= (store + pointer_to_array[i]*sizeof(uint32_t)))
@@ -248,8 +249,7 @@ void add_data()
                 printf("Valid address, enter data\n");
                 scanf("%x",&data_to_store);
                 *mem_store=data_to_store;
-                printf("Data: %04lx stored at Address %04lx\n",*mem_store,mem_to_store);
-                //validMemInAddData=1;
+                printf("Data: %04x stored at Address %04lx\n",*mem_store,mem_to_store);
                 return;
             }
         }
@@ -291,8 +291,8 @@ void _display()
 }
 
 void freeAll()
-{ 
-    if(array_count==0) 
+{   
+    if(array_count==0 && exit_free_flag==0) 
     {
         printf("Allocate Memory First.\n");
         return;
@@ -310,12 +310,14 @@ void freeAll()
         }
         array_count=0;
         printf("Successfully freed memory\n");
+        exit_free_flag=0;
     }
     
 }
 void invert_data(void)
 {
     long mem_to_invert=0;
+    uint32_t* invert_sequence[BUFF]={0};
     if(array_count == 0)
     {
         printf("Allocate Memory First\n");
@@ -327,15 +329,22 @@ void invert_data(void)
     scanf("%d",&num_of_loc);
     gettimeofday(&start_t,NULL);
     printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
-    mem_store=(long*)mem_to_invert;
+    //mem_store=(long*)mem_to_invert;
+    invert_sequence[0]=(uint32_t*)mem_to_invert;
     for(i=0 ; i<array_count ; i+=1)        
     {   store=(long)array[i];
         if(mem_to_invert >= store && ((mem_to_invert + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
         {
             if((mem_to_invert-store)%(sizeof(uint32_t)) == 0)
-            {
-                *mem_store^=xor;//check
-                printf("Data: %lx stored at Address %04lx\n",*mem_store,mem_to_invert);
+            {   for(i=0;i<num_of_loc;i+=1)
+              {
+                *invert_sequence[i]^=xor;
+                 invert_sequence[i+1]=(uint32_t*)(mem_to_invert+(i+1)*(sizeof(uint32_t)));
+                 printf("Data: %x stored at Address %ls\n",*invert_sequence[i],invert_sequence[i]);
+
+              }
+                //*mem_store^=xor;//check
+                
                 gettimeofday(&end_t,NULL);
                 printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
                 elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
@@ -347,7 +356,173 @@ void invert_data(void)
     printf("Invalid Address\n");
 }
     
-    
+void _random(void)
+{
+  uint32_t seed=0;
+  long mem_to_random=0;
+  //uint32_t* random_sequence[20]={0};
+  uint32_t a=1,b=3,M=10;
+  //int*x[20]={0};
+    //long mem_to_invert=0;
+    if(array_count == 0)
+    {
+        printf("Allocate Memory First\n");
+        return;
+    }
+    printf("Enter the starting address for the seed\n");
+    scanf("%lx",&mem_to_random);
+    printf("Enter number of sequences\n");
+    scanf("%d",&num_of_loc);
+    printf("Enter the seed value\n");
+    scanf("%d",&seed);
+    gettimeofday(&start_t,NULL);
+   
+    random_sequence[0]=(uint32_t*)mem_to_random;
+    *random_sequence[0]=seed;
+
+    for(i=0 ; i<array_count ; i+=1)        
+    {   store=(long)array[i];
+        if(mem_to_random >= store && ((mem_to_random + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
+        {
+            if((mem_to_random-store)%(sizeof(uint32_t)) == 0)
+            {   gettimeofday(&start_t,NULL);
+                printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
+                //*mem_store = seed;
+                for(i=1 ;i<num_of_loc; i+=1)
+                {
+                    random_sequence[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));
+                    *random_sequence[i]=(a*(*random_sequence[i-1]+b))%M;
+                  //(mem_store+1)= (a*(*mem_store)+b)%M;
+                    //mem_store = mem_store+1;
+                    printf("Content at mem_store:%04x address of mem_store:%ls\n",*random_sequence[i],random_sequence[i]);
+                }
+                gettimeofday(&end_t,NULL);
+                printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
+                elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
+                printf("Time taken for execution of XOR: %ld s %ld us \n",(end_t.tv_sec-start_t.tv_sec), (end_t.tv_usec- start_t.tv_usec));
+                return;
+            }
+        }
+    }
+    printf("Invalid Address\n");
+}
+
+void verify()
+{
+  long seed=0;
+  long mem_to_random=0;
+  uint32_t* random_sequence_verify[BUFF]={0};
+  uint32_t num_of_loc_verify=0;
+  uint32_t a=1,b=3,M=10;
+  uint32_t* first_seed_val=0;
+  //int*x[20]={0};
+    //long mem_to_invert=0;
+    if(array_count == 0)
+    {
+        printf("Allocate Memory First\n");
+        return;
+    }
+    printf("Enter the starting address for the seed\n");
+    scanf("%lx",&mem_to_random);
+    printf("Enter number of sequences\n");
+    scanf("%d",&num_of_loc_verify);
+    printf("Enter the seed value\n");
+    scanf("%ld",&seed);
+    gettimeofday(&start_t,NULL);
+   
+    random_sequence_verify[0]=(uint32_t*)mem_to_random;
+    //first_seed_val = (uint32_t*)mem_to_random;
+ /*   if(num_of_loc_verify>num_of_loc)
+    {
+      printf("Patterns don't match")
+    }*/
+
+    for(i=0 ; i<array_count ; i+=1)        
+    {   store=(long)array[i];
+        if(mem_to_random >= store && ((mem_to_random + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
+        {
+            if((mem_to_random-store)%(sizeof(uint32_t)) == 0)
+            {   gettimeofday(&start_t,NULL);
+                printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
+                //*mem_store = seed;
+                if((uint32_t)*random_sequence_verify[0]!=(uint32_t)seed)
+                {
+                  printf("Discrepancy at %lx value is %x should be %ld\n",(long)random_sequence_verify[0],*random_sequence_verify[0],seed);
+                }
+                for(i=1 ;i<num_of_loc_verify; i+=1)
+                {
+                    random_sequence_verify[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));
+                    if(*random_sequence_verify[i]!=(a*(seed+b))%M)
+
+                    {
+                      printf("Discrepancy at %lx value is %x should be %ld\n",(long)random_sequence_verify[i],*random_sequence_verify[i],(a*(seed+b))%M);
+                    }
+                    seed=(a*(seed+b)%M);
+                   
+                  //(mem_store+1)= (a*(*mem_store)+b)%M;
+                    //mem_store = mem_store+1;
+                    //printf("Content at mem_store:%04x address of mem_store:%ls\n",*random_sequence[i],random_sequence[i]);
+                }
+                gettimeofday(&end_t,NULL);
+                printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
+                elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
+                printf("Time taken for execution of XOR: %ld s %ld us \n",(end_t.tv_sec-start_t.tv_sec), (end_t.tv_usec- start_t.tv_usec));
+                return;
+            }
+        }
+    }
+    printf("Invalid Address\n");
+}
+
+void function_pointer_assignemnt(void)
+{    
+  /*   ffree_mem = free_mem;
+     fmenu=menu;
+     fadd_data = add_data;
+     fresizing_freed_array = resizing_freed_array;
+     f_display = _display;
+     ffreeAll = freeAll;
+     ffinvert_data = invert_data;
+     f_random = _random;
+     fdefaultMessage = defaultMessage;
+     fexit_free =exit_free;
+     fuser_input = user_input;
+     printf("here\n");*/
+}
+void offset_mem(void)
+{ long block_index=0;
+  long offset_index=0;
+  long add_bef_offset=0;
+  printf("Enter the block of memory starting from 0\n");
+  scanf("%ld",&block_index);
+  if(array_count < block_index) 
+  {
+    printf("Block not assigned\n");
+    return;
+  }
+  else 
+  {
+      //offset_index=array[block_index];
+      printf("Enter the offset\n");
+      scanf("%ld",&offset_index);
+      if(offset_index > pointer_to_array[block_index])
+      {
+            printf("Out of Bounds\n");
+            return;
+      }
+      else
+      { 
+          add_bef_offset =(long)array[block_index];
+          add_aft_offset=add_bef_offset+offset_index*sizeof(uint32_t);
+          printf("0x%lx\n",add_aft_offset);
+      }
+  }
+}
+void exit_free(void)
+{ exit_free_flag=1;
+  freeAll();
+  exit(0);
+}
 
 void defaultMessage(void)
 {
