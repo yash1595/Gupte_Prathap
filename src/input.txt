@@ -30,7 +30,7 @@ add
 2
 2
 2
-0x0006 
+0x0060
 display
 1
 verify
@@ -44,7 +44,6 @@ display
 free
 2
 release
-1
 display
 1
 exit

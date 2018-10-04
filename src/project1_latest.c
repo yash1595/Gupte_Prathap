@@ -289,20 +289,12 @@ void _display()                                                          // Disp
 
 void freeAll()                                                            // Frees all the memory.
 {   
-    if(array_count==0 && exit_free_flag==0)                               // Prints a warning if memory wasn't allocated.
+    if(array_count==0)                               
     {
-        printf("Allocate Memory First.\n");
+        printf("Allocate Memory First.\n");                               // Prints a warning if memory wasn't allocated.
         return;
     }
-    else if(array_count!=0 && exit_free_flag==0)                          // Issues a warning that all allocated blocks will be freed.
-    { scanf("%d",&free_all_input);
-      printf("This will erase all allocated memory.\n");
-      printf("Use 'freemem' to free memory by address.\n");
-      printf("To Continue type '1'\n:");
-    
-    }
-    else if(array_count!=0 && exit_free_flag==1)free_all_input=1;         // Excecuted when called from the "exit_free" function
-    if(free_all_input==1)
+    else if(array_count!=0)         
     {
         for(i=0; i<array_count; i+=1)                                     // Frees all the allocated memory.
         {   
@@ -311,7 +303,6 @@ void freeAll()                                                            // Fre
         }
         array_count=0;
         printf("Successfully freed memory\n");
-        exit_free_flag=0;
     }
     
 }
@@ -350,14 +341,14 @@ void invert_data(void)                                                    // Inv
     printf("Invalid Address\n");
 }
     
-void _random(void)
-{
-  uint32_t seed=0;
+void _random(void)                                                              //Generates a pseudo random sequence in specified area of memory.
+{                                                                               //Uses Linear congruential generator with a=1,b=3,M=20. Takes a
+  uint32_t seed=0;                                                              //seed value as input.
   long mem_to_random=0;
   uint32_t a=1,b=3,M=10;
     if(array_count == 0)
     {
-        printf("Allocate Memory First\n");
+        printf("Allocate Memory First\n");                                      //Prints warning if no memory has been allocated.
         return;
     }
     mem_to_random=finput_address_mode();
@@ -376,18 +367,12 @@ void _random(void)
         {
             if((mem_to_random-store)%(sizeof(uint32_t)) == 0)
             {   gettimeofday(&start_t,NULL);
-                //printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
-                //*mem_store = seed;
                 for(i=1 ;i<num_of_loc; i+=1)
                 {
                     random_sequence[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));
-                    *random_sequence[i]=(a*(*random_sequence[i-1]+b))%M;
-                  //(mem_store+1)= (a*(*mem_store)+b)%M;
-                    //mem_store = mem_store+1;
-                    //printf("Content at mem_store:%04x address of mem_store:%lx\n",*random_sequence[i],(long)random_sequence[i]);
+                    *random_sequence[i]=(a*(*random_sequence[i-1]+b))%M;          //Generates and stores pseudo random number based on LCG.
                 }
                 gettimeofday(&end_t,NULL);
-                //printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
                 elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
                 printf("Time taken for execution of XOR: %ld s %ld us \n",(end_t.tv_sec-start_t.tv_sec), (end_t.tv_usec- start_t.tv_usec));
                 return;
@@ -397,7 +382,7 @@ void _random(void)
     printf("Invalid Address\n");
 }
 
-void verify()
+void verify()                                                                     // Verifies a pseudo random code in an area of memory
 {
   long seed=0;
   long mem_to_random=0;
@@ -407,7 +392,7 @@ void verify()
   uint32_t* first_seed_val=0;
     if(array_count == 0)
     {
-        printf("Allocate Memory First\n");
+        printf("Allocate Memory First\n");                                      // Warning if no memory has been allocated
         return;
     }
     mem_to_random=input_address_mode();
@@ -427,21 +412,19 @@ void verify()
         {
             if((mem_to_random-store)%(sizeof(uint32_t)) == 0)
             {   gettimeofday(&start_t,NULL);
-                //printf("start %lds:\n start %ldus:\n",start_t.tv_sec,start_t.tv_usec);
-                //*mem_store = seed;
                 if((uint32_t)*random_sequence_verify[0]!=(uint32_t)seed)
                 {
                   printf("Discrepancy at %lx value is %x should be %ld\n",(long)random_sequence_verify[0],*random_sequence_verify[0],seed);
                 }
                 for(i=1 ;i<num_of_loc_verify; i+=1)
                 {
-                    random_sequence_verify[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));
+                    random_sequence_verify[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));  //Checks if there is a discrepancy
                     if(*random_sequence_verify[i]!=(a*(seed+b))%M)
 
                     {
                       printf("Discrepancy at %lx value is %x should be %ld\n",(long)random_sequence_verify[i],*random_sequence_verify[i],(a*(seed+b))%M);
                     }
-                    seed=(a*(seed+b)%M);
+                    seed=(a*(seed+b)%M);                                                // Updates x[n-1] required by LCG
                 }
                 gettimeofday(&end_t,NULL);
                 //printf("end %ld s:\n end %ld us:\n",end_t.tv_sec,end_t.tv_usec);
@@ -455,8 +438,8 @@ void verify()
 }
 
 
-long offset_mem(void)
-{ long block_index=0;
+long offset_mem(void)                                                               // Provides user to select a block of memory and offset
+{ long block_index=0;                                                               // instead of typing the complete address
   long offset_index=0;
   long add_bef_offset=0;
   printf("Enter the block of memory starting from 0\n");
@@ -471,7 +454,7 @@ long offset_mem(void)
       //offset_index=array[block_index];
       printf("Enter the offset\n");
       scanf("%ld",&offset_index);
-      if(offset_index > pointer_to_array[block_index])
+      if(offset_index > pointer_to_array[block_index])                              // Checks if the selected memory location is valid
       {
             printf("Out of Bounds\n");
             return 0;
@@ -479,21 +462,21 @@ long offset_mem(void)
       else
       { 
           add_bef_offset =(long)array[block_index];
-          add_aft_offset=add_bef_offset+offset_index*sizeof(uint32_t);
+          add_aft_offset=add_bef_offset+offset_index*sizeof(uint32_t);              // Calculates address of the block based on offset
           printf("0x%lx\n",add_aft_offset);
           return add_aft_offset;
       }
   }
 }
 void exit_free(void)
-{ exit_free_flag=1;
+{ 
   ffreeAll();
   exit(0);
 }
 
 long input_address_mode(void)
-{   long address_mode=0;
-    printf("Select mode of input\n");
+{   long address_mode=0;                                                            // Allows the user to select the mode in which to enter
+    printf("Select mode of input\n");                                               // an address :  1.complete address  2.offset
     printf("1.Complete Address\t2.Offset\n");
     scanf("%d",&address_mode_select);
     if(address_mode_select==1)
@@ -514,8 +497,8 @@ long input_address_mode(void)
     }
 }
 
-void display_options(void)
-{ uint32_t display_mode=0;
+void display_options(void)                                                                 // Allows the user to select the mode of display:
+{ uint32_t display_mode=0;                                                                 // 1.display entire memory 2.display a specified area
   printf("Select display option\n");
   printf("1. Display all memory 2.Display a block of memory\n");
   scanf("%d",&display_mode);
@@ -525,7 +508,7 @@ void display_options(void)
   return;
 
 }
-void display_offset(void)
+void display_offset(void)                                                                   // Function to display a specified area of memory
 {
 
   uint32_t* ptr_to_offset_mem=NULL;
@@ -535,15 +518,12 @@ void display_offset(void)
         printf("Allocate Memory First\n");
         return;
     }
-    mem_to_display_offset=finput_address_mode();
-   /* printf("Enter the starting address for the seed\n");
-    scanf("%lx",&mem_to_random);*/
+    mem_to_display_offset=finput_address_mode();                                            // Calls function to select an address input mode 
     printf("Enter number of sequences\n");
     scanf("%d",&num_of_loc);
     
    
     ptr_to_offset_mem=(uint32_t*)mem_to_display_offset;
-    //*random_sequence[0]=seed;*/
 
     for(i=0 ; i<array_count ; i+=1)        
     {   store=(long)array[i];
@@ -551,30 +531,22 @@ void display_offset(void)
         {
             if((mem_to_display_offset-store)%(sizeof(uint32_t)) == 0)
             { 
-                //*mem_store = seed;
-                //printf("Content at Add:%lx is:%04x\n",mem_to_display_offset,*ptr_to_offset_mem);
                 for(i=1 ;i<=num_of_loc; i+=1)
                 {   printf("Content at Add:%lx is:%04x\n",mem_to_display_offset,*ptr_to_offset_mem);
-                    //ptr_to_offset_mem=(uint32_t*)(mem_to_display_offset+i*sizeof(uint32_t));
                     mem_to_display_offset=mem_to_display_offset+sizeof(uint32_t);
                     ptr_to_offset_mem=(uint32_t*)mem_to_display_offset;
                     
                 }
-                /*for(j=0;j<num_of_loc; j+=1)
-                  {
-                      printf("Address:%04lx\t Data:%04x\n",store+sizeof(uint32_t)*j,*(array[i]+1*j));
-                  }*/
-
                 return;
             }
         }
     }
     printf("Invalid Address\n");
 }
-void summary_mem(void)
+void summary_mem(void)                                                                  // Provides a summary of number of memory blocks allocated
 {
-  printf("Memory Block\tStarting Address\tSize\n");
-  for(i=0 ; i<array_count ; i+=1)
+  printf("Memory Block\tStarting Address\tSize\n");                                     // along with details such as starting address and number of
+  for(i=0 ; i<array_count ; i+=1)                                                       // bytes of memory allocated to the block
   {
     printf("%d\t\t%lx\t\t%ld bytes\n",i,(long)array[i],pointer_to_array[i]*sizeof(uint32_t));
   }
