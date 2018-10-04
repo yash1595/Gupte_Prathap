@@ -3,7 +3,7 @@ ECEN 5813 : Principles of Embedded Software
 Lekshmi Prathap & Yash Gupte
 This program allows a user to dynamically allocate blocks of memory and offers functions to manipulate the allocated memory.
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-menu     : Displays the help menu which includes the list of commands and descriptions. 
+help     : Displays the help menu which includes the list of commands and descriptions. 
 allocate : Allocates a memory block of the specified size upto 256 memory locations (ie 1024 bytes). Uses malloc().
 add	     : Allows the user to input data to a specified memory location in a memory block. The memory location may be specified through the complete address or offset. 
 display  : Displays either the entire memory or a user specified area of memory.
