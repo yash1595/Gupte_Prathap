@@ -50,7 +50,7 @@ v18(current): 1. Memory deletion bug
 -------------------------------------------------------------------------------
 v19(current): 1. Test File
 *******************************************************************************/
- //#include </home/ubuntu/Documents/Gupte_Prathap/project1_headers.h>
+
  #include "../headers/project1_headers.h"
  #include "../headers/project1_functions.c"
  // Variables 
@@ -66,7 +66,6 @@ v19(current): 1. Test File
  uint32_t data_to_store = 0;
  uint32_t* allocated_mem=0;
  uint32_t location_to_free=0;
- //uint32_t invalid_mem=1;
  uint32_t array_count=0;
  uint32_t validMemInAddData=0;
  uint32_t num_of_loc=0;
@@ -75,9 +74,7 @@ v19(current): 1. Test File
  uint32_t address_mode_select=0;
  
  long temp=0;
- //long mem_to_invert=0;
  long mem_free=0;
- //long mem_to_store=0;
  long store=0;
  long add_aft_offset=0;
  uint32_t* mem_store=NULL;
@@ -106,10 +103,8 @@ v19(current): 1. Test File
 
 
  int main()
- {  //typedef void (*f_ptr) (void);
-     //void (*f_menu)(void)=&menu;
+ { 
      function_pointer_assignemnt();
-     //f_ptr f_add_data = add_data;
      fmenu();
      while(1)
      {
@@ -146,10 +141,10 @@ v19(current): 1. Test File
 
  }
 
- void main_interface()
- {
-      
-      if(strcmp(str,alloc) == 0) allocated_mem = fallocate();
+ void main_interface()                                            // This function compares the user input string for the functions like
+ {                                                                // 'allocate','free','release' etc. and calls the suitable function by
+                                                                  //  calling a function via a function pointer.
+      if(strcmp(str,alloc) == 0) allocated_mem = fallocate();     
       else if(strcmp(str,freemem) == 0) ffree_mem(allocated_mem);
       else if(strcmp(str,help) == 0) fmenu();
       else if(strcmp(str,quit) == 0) fexit_free();
@@ -160,95 +155,94 @@ v19(current): 1. Test File
       else if(strcmp(str,pseudo) == 0) f_random();       
       else if(strcmp(str,verify_pattern)==0) fverify();    
       else if(strcmp(str,offset)==0) foffset_mem();
-      //else if(strcmp(str,display_opt)==0)display_options();
       else if(strcmp(str,"\n")!=0) fdefaultMessage();
  }
 
  
- uint32_t* allocate()
- {   
-     printf("Enter the number of bytes:\t");
+ uint32_t* allocate()                                             // Allocates the prompted number of blocks of memory upto 256.
+ {                                                                
+     printf("Enter the number of blocks of memory:\t");                      
             scanf("%d",&bytes);
-            if(bytes>BUFF || bytes<1)
+            if(bytes>BUFF || bytes<1)                             // checks if input value is not greater than 256, if it is prints a warning.
             {
-                printf("Press 'allocate' to allocate memory and enter a number below 20\n");
+                printf("Press 'allocate' to allocate memory and enter a number below 256\n");
                 return NULL;
             }
      
      if(mem_alloc_check < BUFF){
-     if(array_count > (BUFF-1) || max_bytes <= 0)
-     {
+     if(array_count > (BUFF-1) || max_bytes <= 0)                 // If input value is<256, then checks if the array of locations doesn't exceed
+     {                                                            // the count of 256.
          printf("Memory limit reached\n");
          return 0;
      }
-      array[array_count] = (uint32_t*)malloc(bytes*sizeof(uint32_t));
-      pointer_to_array[array_count]=bytes;
-      
-     if(array[array_count] == NULL)
-     {
+      array[array_count] = (uint32_t*)malloc(bytes*sizeof(uint32_t)); // Allocates memory using malloc.
+      pointer_to_array[array_count]=bytes;                            // Updates an array called pointer_to_array[] which records the block size
+                                                                      // of every new allocated memory.
+     if(array[array_count] == NULL)                                   
+     {                                                                // If malloc returns a NULL pointer, warning is printed.
          printf("Unable to assign memory space!\n");
-         //menu();
-     }
-     
-     a_flag=1;
-     printf("Successfully allocated memory at %p\n",array[array_count]);
-     array_count+=1;
-     mem_alloc_check+=1;
-     return array[array_count];
-     }
-     else{
-         printf("Clear earlier memory first!\n");
          return 0;
      }
+     
+     a_flag=1;                                                           // Makes the a_flag=1, used to check while freeing memory.
+     printf("Successfully allocated memory at %p\n",array[array_count]); // Prints out if successfully allocated memory.
+     array_count+=1;                                                     // increments array_count which tracks number of seperate blocks of memory.
+     mem_alloc_check+=1;                                                 // Counter used to track allocated and freed memory.
+     return array[array_count];
+     }
+     else
+     {
+         printf("Clear earlier memory first!\n");                       // If memory has been reached till the limit, prints a warning to free 
+         return 0;                                                      // memory first.
+     }
  }
- void free_mem(uint32_t* allocated_mem)
+ void free_mem(uint32_t* allocated_mem)                                 // Frees memory at specified block.
  {
      uint32_t i=0;
-     //version v5
      uint32_t free_mem_val=0;
-     if(a_flag==0) 
-     {
+     if(a_flag==0)                                                      // Checks if a_flag == 1 in allocate only then allows freeing memory.
+     {                                                                  // Prints a warning if memory was not allocated.
          printf("Allocate memory first!\n");
          return;
      } 
-        printf("Enter the block of memory to free\n");
-        fsummary_mem();
-        scanf("%d",&free_mem_val);
+        printf("Enter the block of memory to free\n");                  // Prompts for user to enter a block to free.
+        fsummary_mem();                                                 // Displays the current allocated blocks with their data
+        scanf("%d",&free_mem_val);                                      
         if(free_mem_val>(array_count-1) || free_mem_val<0)
         {
-          printf("Invalid block\n");
+          printf("Invalid block\n");                                    // Prints a warning if not in the constarints.
           return;
         }
         else
         { 
-          free(array[free_mem_val]);
-          fresizing_freed_array(free_mem_val);
-          fsummary_mem();
-          mem_alloc_check-=1;
+          free(array[free_mem_val]);                                    // frees the specidied memory from array[].
+          fresizing_freed_array(free_mem_val);                          // Resizes the array, so that a call to the same address value is invalid.
+          fsummary_mem();                                               // Displays the summary of memory blocks and data post free.
+          mem_alloc_check-=1;                                           // Reduces the array length counter.
         }
                 
 
 }
-void user_input()
+void user_input()                                                       // Takes input from user.
 {   uint32_t input=2;
     fgets(str,BUFF,stdin);
 }
 
-void add_data()
+void add_data()                                                          // Adds data.
 {
-    long mem_to_store=0;
+    long mem_to_store=0;                                                 // variable to store user entered value.
     if(array_count == 0)
     {
-        printf("Allocate Memory First\n");
+        printf("Allocate Memory First\n");                               // If memory has not been allocated, prints a warning.
         return;
     }
-    mem_to_store=input_address_mode();
-    mem_store=(uint32_t*)mem_to_store;
-    for(i=0 ; i<array_count ; i+=1)        
+    mem_to_store=finput_address_mode();                                   // Calls the method of reading the input address(Address or offset).
+    mem_store=(uint32_t*)mem_to_store;                                   
+    for(i=0 ; i<array_count ; i+=1)                                      // loops through the array[] to check if the address lies in the allocated ones.
     {   store=(long)array[i];
         if(mem_to_store >= store && mem_to_store <= (store + pointer_to_array[i]*sizeof(uint32_t)))
         {
-            if((mem_to_store-store)%(sizeof(uint32_t)) == 0)
+            if((mem_to_store-store)%(sizeof(uint32_t)) == 0)             // If valid, prints, promt for user to enter data to be stored at the entered location.
             {
                 printf("Valid address, enter data\n");
                 scanf("%x",&data_to_store);
@@ -261,24 +255,24 @@ void add_data()
     printf("Invalid Address\n");
 }
 
-void resizing_freed_array(uint32_t free_mem_val)
+void resizing_freed_array(uint32_t free_mem_val)                         // Resizes the array after every free.
 {
     for(i=free_mem_val+1; i<array_count; i+=1)
     {
         array[i-1]=array[i];
         pointer_to_array[i-1]=pointer_to_array[i];
     }
-    array[array_count-1]=NULL;
-    pointer_to_array[array_count-1]=0;
-    array_count-=1;
+    array[array_count-1]=NULL;                                           // Assigns NULL to the freed location.
+    pointer_to_array[array_count-1]=0;                                   // pointer_to_array[] is assigned '0' at the freed location.
+    array_count-=1;                                                      // Array count is decremented.
     //printf("Array count %d\n",array_count);
 }
 
-void _display()
+void _display()                                                          // Displays the memory and content.
 {   
     uint32_t disp_count=0;
-    if(array_count == 0)printf("No memory to display");
-    for(i=0;i<array_count;i+=1)
+    if(array_count == 0)printf("No memory to display");                  // Prints a warning if memory wasn't allocated.
+    for(i=0;i<array_count;i+=1)                                          
     {   store=(long)array[i];
         printf("\n\nMemory Block:%d",i);
         disp_count=0;
@@ -289,30 +283,28 @@ void _display()
             disp_count+=1;
             
         }
-        //printf("Address: %p Content: %x\n",array[i],*array[i]);
-        //printf("Content at pointer_to_array: %d\n",pointer_to_array[i]);
     } 
     printf("\n");
 }
 
-void freeAll()
+void freeAll()                                                            // Frees all the memory.
 {   
-    if(array_count==0 && exit_free_flag==0) 
+    if(array_count==0 && exit_free_flag==0)                               // Prints a warning if memory wasn't allocated.
     {
         printf("Allocate Memory First.\n");
         return;
     }
-    else if(array_count!=0 && exit_free_flag==0)
+    else if(array_count!=0 && exit_free_flag==0)                          // Issues a warning that all allocated blocks will be freed.
     { scanf("%d",&free_all_input);
       printf("This will erase all allocated memory.\n");
       printf("Use 'freemem' to free memory by address.\n");
       printf("To Continue type '1'\n:");
     
     }
-    else if(array_count!=0 && exit_free_flag==1)free_all_input=1;
+    else if(array_count!=0 && exit_free_flag==1)free_all_input=1;         // Excecuted when called from the "exit_free" function
     if(free_all_input==1)
     {
-        for(i=0; i<array_count; i+=1) 
+        for(i=0; i<array_count; i+=1)                                     // Frees all the allocated memory.
         {   
             free(array[i]);
             array[i]=NULL;
@@ -323,33 +315,33 @@ void freeAll()
     }
     
 }
-void invert_data(void)
+void invert_data(void)                                                    // Inverts the data at specified locations.
 {
     long mem_to_invert=0;
-    uint32_t* invert_sequence[BUFF]={0};
+    uint32_t* invert_sequence[BUFF]={0};                                  // Array of pointers to store the inverted sequence
     if(array_count == 0)
     {
-        printf("Allocate Memory First\n");
+        printf("Allocate Memory First\n");                                // If not allocated memory, prints a warning.
         return;
     }
-    mem_to_invert=finput_address_mode();
+    mem_to_invert=finput_address_mode();                                  // Calls the method of reading the input address(Address or offset). 
     printf("Enter number of locations to invert\n");
     scanf("%d",&num_of_loc);
     gettimeofday(&start_t,NULL);
     invert_sequence[0]=(uint32_t*)mem_to_invert;
-    for(i=0 ; i<array_count ; i+=1)        
+    for(i=0 ; i<array_count ; i+=1)                                       // Scans to check if valid memory was entered.
     {   store=(long)array[i];
         if(mem_to_invert >= store && ((mem_to_invert + (num_of_loc)*sizeof(uint32_t)) <= (store + pointer_to_array[i]*sizeof(uint32_t))))
         {
             if((mem_to_invert-store)%(sizeof(uint32_t)) == 0)
             {   for(i=0;i<num_of_loc;i+=1)
               {
-                *invert_sequence[i]^=xor;
+                *invert_sequence[i]^=xor;                                                    // Takes an XOR to invert the values.
                  invert_sequence[i+1]=(uint32_t*)(mem_to_invert+(i+1)*(sizeof(uint32_t))); 
               }
 
                 gettimeofday(&end_t,NULL);
-                elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;
+                elapsed=(start_t.tv_sec-end_t.tv_sec)+(start_t.tv_usec- end_t.tv_usec)*0.000001;  // Displays the time taken for the execution.
                 printf("Time taken for execution of XOR: %ld s %ld us \n",(end_t.tv_sec-start_t.tv_sec), (end_t.tv_usec- start_t.tv_usec));
                 return;
             }
