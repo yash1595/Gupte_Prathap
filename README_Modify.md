@@ -1,0 +1,1 @@
+This folder contains the modified code. The changes are the setting of num_of_loc = 0 at the beginning of every function where it is used.

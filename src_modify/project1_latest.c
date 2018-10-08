@@ -68,10 +68,10 @@ v19(current): 1. Test File
  uint32_t location_to_free=0;
  uint32_t array_count=0;
  uint32_t validMemInAddData=0;
- uint32_t num_of_loc=0;
  uint32_t xor=0xFFFF;
  uint32_t exit_free_flag=0;
  uint32_t address_mode_select=0;
+ uint32_t num_of_loc=0;
  
  long temp=0;
  long mem_free=0;
@@ -309,6 +309,7 @@ void freeAll()                                                            // Fre
 void invert_data(void)                                                    // Inverts the data at specified locations.
 {
     long mem_to_invert=0;
+    num_of_loc=0;
     uint32_t* invert_sequence[BUFF]={0};                                  // Array of pointers to store the inverted sequence
     if(array_count == 0)
     {
@@ -318,6 +319,7 @@ void invert_data(void)                                                    // Inv
     mem_to_invert=finput_address_mode();                                  // Calls the method of reading the input address(Address or offset). 
     printf("Enter number of locations to invert\n");
     scanf("%d",&num_of_loc);
+    //printf("%d\n",num_of_loc);
     gettimeofday(&start_t,NULL);
     invert_sequence[0]=(uint32_t*)mem_to_invert;
     for(i=0 ; i<array_count ; i+=1)                                       // Scans to check if valid memory was entered.
@@ -343,7 +345,8 @@ void invert_data(void)                                                    // Inv
     
 void _random(void)                                                              //Generates a pseudo random sequence in specified area of memory.
 {                                                                               //Uses Linear congruential generator with a=1,b=3,M=20. Takes a
-  uint32_t seed=0;                                                              //seed value as input.
+  uint32_t seed=0;  
+  num_of_loc=0;                                                            //seed value as input.
   long mem_to_random=0;
   uint32_t a=1,b=3,M=10;
     if(array_count == 0)
@@ -387,7 +390,7 @@ void verify()                                                                   
   long seed=0;
   long mem_to_random=0;
   uint32_t* random_sequence_verify[BUFF]={0};
-  uint32_t num_of_loc_verify=0;
+  num_of_loc=0;
   uint32_t a=1,b=3,M=10;
   uint32_t* first_seed_val=0;
     if(array_count == 0)
@@ -399,7 +402,7 @@ void verify()                                                                   
     /*printf("Enter the starting address for the seed\n");
     scanf("%lx",&mem_to_random);*/
     printf("Enter number of sequences\n");
-    scanf("%d",&num_of_loc_verify);
+    scanf("%d",&num_of_loc);
     printf("Enter the seed value\n");
     scanf("%ld",&seed);
     gettimeofday(&start_t,NULL);
@@ -416,7 +419,7 @@ void verify()                                                                   
                 {
                   printf("Discrepancy at %lx value is %x should be %ld\n",(long)random_sequence_verify[0],*random_sequence_verify[0],seed);
                 }
-                for(i=1 ;i<num_of_loc_verify; i+=1)
+                for(i=1 ;i<num_of_loc; i+=1)
                 {
                     random_sequence_verify[i]=(uint32_t*)(mem_to_random+i*sizeof(uint32_t));  //Checks if there is a discrepancy
                     if(*random_sequence_verify[i]!=(a*(seed+b))%M)
@@ -512,6 +515,7 @@ void display_offset(void)                                                       
 {
 
   uint32_t* ptr_to_offset_mem=NULL;
+  num_of_loc=0;
   long mem_to_display_offset=0;
     if(array_count == 0)
     {
